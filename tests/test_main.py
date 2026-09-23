@@ -1,7 +1,6 @@
 """Tests for the Day 01 FastAPI application foundation."""
 
-from fastapi.testclient import TestClient  # type: ignore[reportMissingImports]
-
+from fastapi.testclient import TestClient
 from app.config import Settings
 from app.main import create_application
 
