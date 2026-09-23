@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "maurya"
+version = "0.1.0"
+description = "M.A.U.R.Y.A. - Modern OSINT & Threat Recon Dashboard"
+requires-python = ">=3.10"
+readme = "README.md"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = [
+    "-ra",
+    "--strict-config",
+    "--strict-markers"
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "B",
+    "UP",
+    "N",
+    "S"
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "S101"
+]

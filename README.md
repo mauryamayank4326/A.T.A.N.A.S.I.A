@@ -1,4 +1,40 @@
-# A.T.A.N.A.S.I.A
-Atanasia is an autonomous, agentic cybersecurity partner built to bridge the gap between static threat intelligence and real-time execution. Rather than acting as a simple Q&A chatbot, Atanasia functions as an active digital guardian—monitoring environments, analyzing threat vectors, and executing multi-step security workflows with minimal human friction.
+# M.A.U.R.Y.A.
 
-Designed with an agentic architecture, Atanasia breaks down high-level security objectives into structured, logical execution plans. She combines long-term memory retrieval with native tool utilization—allowing her to ingest system logs, interface with network terminals, perform vulnerability assessments, and orchestrate defensive maneuvers in safe, sandboxed environments.
+**Multi-source Analysis for Uncovering Reconnaissance & Yielding Actionable-intel**
+
+Modern OSINT & Threat Recon Dashboard.
+
+## Mission
+
+M.A.U.R.Y.A. is an asynchronous External Attack Surface Management
+(EASM) and Cyber Threat Intelligence (CTI) reconnaissance platform.
+
+The platform is designed around:
+
+- asynchronous network collection;
+- modular OSINT workers;
+- relational intelligence persistence;
+- fault-isolated reconnaissance tasks;
+- operational attack-surface visualization;
+- structured forensic export.
+
+## Current Status
+
+Version: 0.1.0
+
+Lifecycle: Day 01 / 50
+
+Current milestone:
+
+- repository foundation;
+- deterministic dependency architecture;
+- environment configuration;
+- FastAPI ASGI runtime;
+- initial automated tests.
+
+## Development
+
+Create a virtual environment:
+
+```bash
+python3.10 -m venv .venv

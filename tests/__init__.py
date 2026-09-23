@@ -1,0 +1,1 @@
+"""M.A.U.R.Y.A. test package."""
