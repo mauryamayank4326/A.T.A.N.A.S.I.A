@@ -6,40 +6,58 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.cors import CORSMiddleware
 
 from app.config import Settings, get_settings
+from app.core.database import (
+    create_database_engine,
+    create_session_factory,
+    dispose_database,
+    initialize_database,
+)
 
 
 @asynccontextmanager
 async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
-    """Manage application startup and shutdown lifecycle.
+    """Manage application startup and shutdown resources.
 
-    The lifecycle hook intentionally contains no database initialization yet.
-    Database engine construction belongs to the persistence milestone.
+    Database resources are created during startup and disposed during
+    application shutdown.
 
     Args:
         application: Active FastAPI application instance.
 
     Yields:
         Control to the running ASGI application.
+
+    Raises:
+        Exception: Propagates database initialization failures so that
+            the application does not start in a partially initialized state.
     """
-    application.state.settings = get_settings()
-    yield
+    settings: Settings = get_settings()
+
+    engine = create_database_engine(settings)
+    session_factory = create_session_factory(engine)
+
+    application.state.settings = settings
+    application.state.db_engine = engine
+    application.state.db_session_factory = session_factory
+
+    try:
+        await initialize_database(engine)
+        yield
+    finally:
+        await dispose_database(engine)
 
 
 def create_application(settings: Settings | None = None) -> FastAPI:
-    """Create and configure a M.A.U.R.Y.A. FastAPI application.
-
-    Using an application factory keeps the runtime independently testable
-    and allows tests to construct isolated application instances.
+    """Create and configure the M.A.U.R.Y.A. FastAPI application.
 
     Args:
-        settings: Optional validated settings instance. When omitted,
-            process configuration is loaded through ``get_settings()``.
+        settings: Optional validated settings instance.
 
     Returns:
-        Fully configured FastAPI application.
+        Configured FastAPI application.
     """
     runtime_settings = settings or get_settings()
 
@@ -56,9 +74,19 @@ def create_application(settings: Settings | None = None) -> FastAPI:
 
     application.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost", "http://127.0.0.1"],
+        allow_origins=[
+            "http://localhost",
+            "http://127.0.0.1",
+        ],
         allow_credentials=False,
-        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_methods=[
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS",
+        ],
         allow_headers=["*"],
     )
 
