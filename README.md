@@ -20,7 +20,7 @@ The platform is designed around:
 
 ## Current Status
 
-Version: 0.2.0
+Version: 0.3.0
 
 Lifecycle: Day 02 / 50
 
