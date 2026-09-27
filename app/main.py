@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import Callable
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
@@ -17,47 +18,61 @@ from app.core.database import (
 )
 
 
-@asynccontextmanager
-async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
-    """Manage application startup and shutdown resources.
+def create_lifespan(
+    settings: Settings,
+) -> Callable[[FastAPI], AsyncGenerator[None, None]]:
+    """Create a FastAPI lifespan handler bound to application settings.
 
-    Database resources are created during startup and disposed during
-    application shutdown.
+    Binding the settings object here ensures that tests and future
+    application instances use the exact configuration supplied to
+    ``create_application``.
 
     Args:
-        application: Active FastAPI application instance.
+        settings: Validated application settings.
 
-    Yields:
-        Control to the running ASGI application.
-
-    Raises:
-        Exception: Propagates database initialization failures so that
-            the application does not start in a partially initialized state.
+    Returns:
+        FastAPI-compatible asynchronous lifespan handler.
     """
-    settings: Settings = get_settings()
 
-    engine = create_database_engine(settings)
-    session_factory = create_session_factory(engine)
+    @asynccontextmanager
+    async def lifespan(
+        application: FastAPI,
+    ) -> AsyncGenerator[None, None]:
+        """Initialize and dispose application-level resources.
 
-    application.state.settings = settings
-    application.state.db_engine = engine
-    application.state.db_session_factory = session_factory
+        Args:
+            application: Active FastAPI application instance.
 
-    try:
-        await initialize_database(engine)
-        yield
-    finally:
-        await dispose_database(engine)
+        Yields:
+            Control to the running ASGI application.
+        """
+        engine = create_database_engine(settings)
+        session_factory = create_session_factory(engine)
+
+        application.state.settings = settings
+        application.state.db_engine = engine
+        application.state.db_session_factory = session_factory
+
+        try:
+            await initialize_database(engine)
+            yield
+        finally:
+            await dispose_database(engine)
+
+    return lifespan
 
 
-def create_application(settings: Settings | None = None) -> FastAPI:
+def create_application(
+    settings: Settings | None = None,
+) -> FastAPI:
     """Create and configure the M.A.U.R.Y.A. FastAPI application.
 
     Args:
-        settings: Optional validated settings instance.
+        settings: Optional validated settings instance. When omitted,
+            the application's cached environment settings are used.
 
     Returns:
-        Configured FastAPI application.
+        Fully configured FastAPI application instance.
     """
     runtime_settings = settings or get_settings()
 
@@ -69,7 +84,7 @@ def create_application(settings: Settings | None = None) -> FastAPI:
             "External Attack Surface Management and threat intelligence."
         ),
         debug=runtime_settings.debug,
-        lifespan=lifespan,
+        lifespan=create_lifespan(runtime_settings),
     )
 
     application.add_middleware(
