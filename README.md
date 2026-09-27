@@ -22,33 +22,25 @@ The platform is designed around:
 
 Version: 0.3.0
 
-Lifecycle: Day 02 / 50
+Lifecycle: Day 03 / 50
 
-Current milestone:
-╔══════════════════════════════════════════════════════╗
-║              M.A.U.R.Y.A. — DAY 02                 ║
-║             DATABASE FOUNDATION                     ║
-╠══════════════════════════════════════════════════════╣
-║ ☐ Async SQLAlchemy engine implemented               ║
-║ ☐ aiosqlite integration operational                 ║
-║ ☐ Declarative Base established                      ║
-║ ☐ AsyncSession factory established                  ║
-║ ☐ SQLite WAL enabled                                ║
-║ ☐ synchronous=NORMAL verified                       ║
-║ ☐ Foreign-key enforcement enabled                   ║
-║ ☐ SQLite busy timeout configured                    ║
-║ ☐ Database directory auto-created                   ║
-║ ☐ FastAPI startup initializes database              ║
-║ ☐ FastAPI shutdown disposes database                ║
-║ ☐ Database connectivity test passes                 ║
-║ ☐ WAL configuration test passes                     ║
-║ ☐ Session factory test passes                       ║
-║ ☐ Existing Day 01 tests still pass                  ║
-║ ☐ Ruff passes                                       ║
-║ ☐ No database artifacts committed                   ║
-║ ☐ Git diff reviewed                                 ║
-║ ☐ Conventional commit created                       ║
-╚══════════════════════════════════════════════════════╝
+[ ] Day 02 code reviewed
+[x] Unused database import removed
+[x] Lifespan settings coupling corrected
+[x] create_lifespan() introduced
+[x] Custom Settings preserved through lifespan
+[x] API dependency package introduced
+[x] AsyncSession dependency introduced
+[x] Existing WAL configuration preserved
+[x] Existing database tests preserved
+[x] Lifecycle regression test added
+[x] Isolated database testing preserved
+[ ] Ruff passes locally
+[ ] Pytest passes locally
+[ ] Application manually verified
+[ ] Git diff reviewed
+[ ] Commit created
+[ ] Branch pushed
 ## Development
 
 Create a virtual environment:
