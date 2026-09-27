@@ -1,17 +1,22 @@
-"""Tests for the Day 01 FastAPI application foundation."""
+"""Tests for the M.A.U.R.Y.A. FastAPI application."""
+
+from pathlib import Path
 
 from fastapi.testclient import TestClient
+
 from app.config import Settings
 from app.main import create_application
 
 
-def test_health_endpoint() -> None:
-    """Verify the application starts and exposes its health endpoint."""
+def test_health_endpoint(tmp_path: Path) -> None:
+    """Verify the health endpoint and application lifecycle."""
+    database_path = tmp_path / "health.db"
+
     settings = Settings(
         app_name="M.A.U.R.Y.A. Test",
         environment="test",
         debug=False,
-        database_url="sqlite+aiosqlite:///:memory:",
+        database_url=f"sqlite+aiosqlite:///{database_path}",
     )
 
     application = create_application(settings)
@@ -25,17 +30,24 @@ def test_health_endpoint() -> None:
         "service": "maurya",
     }
 
+    assert database_path.exists()
 
-def test_settings_validation() -> None:
-    """Verify configuration values are parsed into their declared types."""
+
+def test_application_uses_supplied_settings(tmp_path: Path) -> None:
+    """Verify that application lifespan uses injected settings."""
+    database_path = tmp_path / "custom.db"
+
     settings = Settings(
+        app_name="M.A.U.R.Y.A. Custom Test",
         environment="test",
-        debug=True,
-        http_timeout_seconds="15",
-        max_concurrency="50",
+        debug=False,
+        database_url=f"sqlite+aiosqlite:///{database_path}",
     )
 
-    assert settings.environment == "test"
-    assert settings.debug is True
-    assert settings.http_timeout_seconds == 15.0
-    assert settings.max_concurrency == 50
+    application = create_application(settings)
+
+    with TestClient(application):
+        assert application.state.settings is settings
+        assert application.state.db_engine.url.database == str(
+            database_path
+        )

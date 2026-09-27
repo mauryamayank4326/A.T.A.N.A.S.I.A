@@ -1,7 +1,7 @@
 """Tests for M.A.U.R.Y.A. asynchronous SQLite persistence."""
 
-from pathlib import Path
 from collections.abc import AsyncGenerator
+from pathlib import Path
 
 import pytest
 from sqlalchemy import text
@@ -49,6 +49,7 @@ async def test_database_connectivity(
 
     async with database_engine.connect() as connection:
         result = await connection.execute(text("SELECT 1"))
+
         assert result.scalar_one() == 1
 
 
@@ -56,7 +57,7 @@ async def test_database_connectivity(
 async def test_sqlite_wal_configuration(
     database_engine: AsyncEngine,
 ) -> None:
-    """Verify that SQLite is operating with WAL enabled."""
+    """Verify that SQLite runtime configuration is correct."""
     async with database_engine.connect() as connection:
         journal_mode = await connection.execute(
             text("PRAGMA journal_mode")
@@ -82,4 +83,5 @@ async def test_session_factory(
 
     async with session_factory() as session:
         result = await session.execute(text("SELECT 1"))
+
         assert result.scalar_one() == 1

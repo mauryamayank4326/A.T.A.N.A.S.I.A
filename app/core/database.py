@@ -11,18 +11,16 @@ SQLite is configured for:
 * foreign-key enforcement
 * bounded busy timeout
 
-No application-specific ORM entities are defined here.
-Those belong in ``app.models``.
+Application-specific ORM entities belong in ``app.models``.
 """
 
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator
 from pathlib import Path
 from typing import Final
 
 from sqlalchemy import event, text
-from sqlalchemy.engine import Engine, make_url
+from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -68,11 +66,11 @@ def _prepare_sqlite_directory(database_url: str) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def _configure_sqlite_connection(dbapi_connection: object, _: object) -> None:
+def _configure_sqlite_connection(
+    dbapi_connection: object,
+    _: object,
+) -> None:
     """Configure a newly opened SQLite connection.
-
-    The SQLAlchemy async SQLite dialect exposes the underlying synchronous
-    DB-API connection to SQLAlchemy's connection event system.
 
     Args:
         dbapi_connection: Newly established SQLite DB-API connection.
@@ -128,10 +126,6 @@ def create_session_factory(
 ) -> async_sessionmaker[AsyncSession]:
     """Create the application's asynchronous session factory.
 
-    Sessions do not expire ORM attributes after commit. This prevents
-    unnecessary implicit database access when application code reads
-    already-loaded values after a successful transaction.
-
     Args:
         engine: SQLAlchemy asynchronous engine.
 
@@ -147,29 +141,11 @@ def create_session_factory(
     )
 
 
-async def get_db_session(
-    session_factory: async_sessionmaker[AsyncSession],
-) -> AsyncGenerator[AsyncSession, None]:
-    """Yield an asynchronous database session.
-
-    The caller is responsible for transaction boundaries. The session
-    context manager guarantees that the session is released after use.
-
-    Args:
-        session_factory: Configured SQLAlchemy async session factory.
-
-    Yields:
-        An active asynchronous SQLAlchemy session.
-    """
-    async with session_factory() as session:
-        yield session
-
-
 async def initialize_database(engine: AsyncEngine) -> None:
     """Verify that the database is reachable.
 
-    ORM table creation is intentionally not performed here because
-    application entities are introduced in later milestones.
+    ORM table creation is intentionally deferred to the
+    domain-schema milestone.
 
     Args:
         engine: SQLAlchemy asynchronous engine.
@@ -182,7 +158,7 @@ async def initialize_database(engine: AsyncEngine) -> None:
 
 
 async def dispose_database(engine: AsyncEngine) -> None:
-    """Dispose all resources owned by the asynchronous database engine.
+    """Dispose all resources owned by the database engine.
 
     Args:
         engine: SQLAlchemy asynchronous engine.
