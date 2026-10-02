@@ -20,30 +20,35 @@ The platform is designed around:
 
 ## Current Status
 
-Version: 0.3.0
+Version: 0.4.0
 
-Lifecycle: Day 03 / 50
+Lifecycle: Day 04 / 50
 
-[ ] Day 02 code reviewed
-[x] Unused database import removed
-[x] Lifespan settings coupling corrected
-[x] create_lifespan() introduced
-[x] Custom Settings preserved through lifespan
-[x] API dependency package introduced
-[x] AsyncSession dependency introduced
-[x] Existing WAL configuration preserved
-[x] Existing database tests preserved
-[x] Lifecycle regression test added
-[x] Isolated database testing preserved
-[ ] Ruff passes locally
-[ ] Pytest passes locally
-[ ] Application manually verified
-[ ] Git diff reviewed
-[ ] Commit created
-[ ] Branch pushed
+2. Motive of the day
+
+Day 04 will focus on configuration integrity. M.A.U.R.Y.A. already reads environment-backed settings, but production-oriented software should validate those settings before they reach the database engine, application lifecycle, or future reconnaissance workers.
+
+Today we will:
+
+Normalize environment names and log levels.
+
+Validate the database URL against the chosen async SQLite architecture.
+
+Preserve the API prefix validation.
+
+Keep secrets represented by SecretStr.
+
+Add dedicated configuration tests.
+
+Test boundary conditions instead of only testing successful settings.
+
+Preserve Day 03's lifespan and dependency-injection design.
+
+Out of scope: ORM models, scan routes, collectors, dashboard, and new database functionality.
 ## Development
 
 Create a virtual environment:
 
 ```bash
 python3.10 -m venv .venv
+```
