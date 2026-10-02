@@ -1,35 +1,32 @@
-"""Application configuration for M.A.U.R.Y.A.
-
-Configuration is loaded from environment variables and .env files. Secrets are
-intentionally excluded from source-controlled configuration.
-"""
+"""Validated environment-backed settings for M.A.U.R.Y.A."""
 
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import Literal
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+EnvironmentName = Literal[
+    "development",
+    "test",
+    "staging",
+    "production",
+]
+
+LogLevel = Literal[
+    "DEBUG",
+    "INFO",
+    "WARNING",
+    "ERROR",
+    "CRITICAL",
+]
+
+
 class Settings(BaseSettings):
-
-    """Strongly typed runtime configuration.
-
-    Environment variables use the ``MAURYA_`` prefix. For example,
-    ``MAURYA_DEBUG=true`` maps to the ``debug`` field.
-
-    Attributes:
-        app_name: Human-readable application name.
-        environment: Deployment environment identifier.
-        debug: Enables development-oriented debugging behavior.
-        log_level: Application logging level.
-        api_prefix: Root prefix for versioned REST APIs.
-        database_url: SQLAlchemy asynchronous database URL.
-        shodan_api_key: Optional Shodan API credential.
-        http_timeout_seconds: Default outbound HTTP timeout.
-        max_concurrency: Maximum future collector concurrency budget.
-    """
+    """Application configuration validated at initialization."""
 
     model_config = SettingsConfigDict(
         env_prefix="MAURYA_",
@@ -37,62 +34,99 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
+        validate_default=True,
     )
 
     app_name: str = Field(
         default="M.A.U.R.Y.A.",
         min_length=1,
-        max_length=100,
-    )    
-
-    environment: str = Field(
-        default="development",
-        min_length=1,
-        max_length=32,
+        max_length=120,
     )
+
+    environment: EnvironmentName = "development"
 
     debug: bool = False
 
-    log_level: str = Field(
-        default="INFO",
-        min_length=1,
-        max_length=20,
-    )
+    log_level: LogLevel = "INFO"
 
     api_prefix: str = Field(
         default="/api/v1",
         pattern=r"^/api/v[0-9]+$",
     )
 
-    database_url: str = Field(
-        default="sqlite+aiosqlite:///./maurya.db",
-        min_length=1,
+    database_url: str = (
+        "sqlite+aiosqlite:///./data/osint.db"
     )
 
     shodan_api_key: SecretStr | None = None
 
     http_timeout_seconds: float = Field(
         default=10.0,
-        ge=0.0,
-        le=300.0,
+        gt=0,
+        le=300,
     )
 
     max_concurrency: int = Field(
-        default=10,
+        default=20,
         ge=1,
         le=1000,
     )
 
-@lru_cache
+    @field_validator("environment", mode="before")
+    @classmethod
+    def normalize_environment(cls, value: object) -> object:
+        """Normalize environment names before validating them."""
+        if isinstance(value, str):
+            return value.strip().lower()
+        return value
+
+    @field_validator("log_level", mode="before")
+    @classmethod
+    def normalize_log_level(cls, value: object) -> object:
+        """Normalize logging levels to uppercase."""
+        if isinstance(value, str):
+            return value.strip().upper()
+        return value
+
+    @field_validator("app_name")
+    @classmethod
+    def validate_app_name(cls, value: str) -> str:
+        """Reject application names containing only whitespace."""
+        normalized = value.strip()
+
+        if not normalized:
+            raise ValueError("app_name must not be blank")
+
+        return normalized
+
+    @field_validator("database_url")
+    @classmethod
+    def validate_database_url(cls, value: str) -> str:
+        """Require the project's supported async SQLite driver."""
+        from sqlalchemy.engine import make_url
+        from sqlalchemy.exc import ArgumentError
+
+        try:
+            parsed_url = make_url(value)
+        except (ArgumentError, ValueError, TypeError) as exc:
+            raise ValueError(
+                "database_url must be a valid SQLAlchemy URL"
+            ) from exc
+
+        if parsed_url.drivername != "sqlite+aiosqlite":
+            raise ValueError(
+                "database_url must use sqlite+aiosqlite"
+            )
+
+        if parsed_url.database == "":
+            raise ValueError(
+                "database_url must specify a database or :memory:"
+            )
+
+        return value
+
+
+@lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    """Return the process-wide immutable-by-convention settings instance.
-
-    returns:
-        Validated application settings.
-
-    Raises:
-        pydantic.ValidationError: if an environment value violates the
-            declared configuration constraints.
-    """
-
+    """Return cached settings for the default application instance."""
     return Settings()
