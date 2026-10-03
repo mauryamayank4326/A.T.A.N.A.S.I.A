@@ -20,31 +20,27 @@ The platform is designed around:
 
 ## Current Status
 
-Version: 0.4.0
+Version: 0.5.0
 
-Lifecycle: Day 04 / 50
+Lifecycle: Day 05 / 50
 
 2. Motive of the day
 
-Day 04 will focus on configuration integrity. M.A.U.R.Y.A. already reads environment-backed settings, but production-oriented software should validate those settings before they reach the database engine, application lifecycle, or future reconnaissance workers.
+Build a centralized observability foundation that provides:
 
-Today we will:
+Consistent logging: one configuration point controlled by the validated MAURYA_LOG_LEVEL setting.
 
-Normalize environment names and log levels.
+Request traceability: a unique request ID for each request, with support for valid UUIDs supplied by trusted clients or upstream infrastructure.
 
-Validate the database URL against the chosen async SQLite architecture.
+Response correlation: return the request ID in the X-Request-ID response header.
 
-Preserve the API prefix validation.
+Safe diagnostics: avoid logging API keys, request bodies, or other sensitive payloads.
 
-Keep secrets represented by SecretStr.
+Testability: verify logging configuration and request-ID behavior with automated tests.
 
-Add dedicated configuration tests.
+Architectural continuity: retain the Day 03 application lifecycle, database session dependency, and Day 04 settings model.
 
-Test boundary conditions instead of only testing successful settings.
-
-Preserve Day 03's lifespan and dependency-injection design.
-
-Out of scope: ORM models, scan routes, collectors, dashboard, and new database functionality.
+The intended outcome is a foundation that will help diagnose future failures across API handling, persistence, and asynchronous intelligence collection.
 ## Development
 
 Create a virtual environment:
