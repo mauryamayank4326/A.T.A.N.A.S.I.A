@@ -1,13 +1,12 @@
-"""FastAPI application entry point for M.A.U.R.Y.A."""
+"""Application entry point for M.A.U.R.Y.A."""
 
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, AsyncIterator, Callable
 from contextlib import asynccontextmanager
-from typing import Callable
 
 from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import Settings, get_settings
 from app.core.database import (
@@ -16,36 +15,20 @@ from app.core.database import (
     dispose_database,
     initialize_database,
 )
+from app.core.observability import (
+    RequestIdMiddleware,
+    configure_logging,
+)
 
 
 def create_lifespan(
     settings: Settings,
 ) -> Callable[[FastAPI], AsyncGenerator[None, None]]:
-    """Create a FastAPI lifespan handler bound to application settings.
-
-    Binding the settings object here ensures that tests and future
-    application instances use the exact configuration supplied to
-    ``create_application``.
-
-    Args:
-        settings: Validated application settings.
-
-    Returns:
-        FastAPI-compatible asynchronous lifespan handler.
-    """
+    """Build a lifespan handler using the supplied settings."""
 
     @asynccontextmanager
-    async def lifespan(
-        application: FastAPI,
-    ) -> AsyncGenerator[None, None]:
-        """Initialize and dispose application-level resources.
-
-        Args:
-            application: Active FastAPI application instance.
-
-        Yields:
-            Control to the running ASGI application.
-        """
+    async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
+        """Initialize and release application database resources."""
         engine = create_database_engine(settings)
         session_factory = create_session_factory(engine)
 
@@ -65,49 +48,34 @@ def create_lifespan(
 def create_application(
     settings: Settings | None = None,
 ) -> FastAPI:
-    """Create and configure the M.A.U.R.Y.A. FastAPI application.
-
-    Args:
-        settings: Optional validated settings instance. When omitted,
-            the application's cached environment settings are used.
-
-    Returns:
-        Fully configured FastAPI application instance.
-    """
+    """Construct the FastAPI application with validated settings."""
     runtime_settings = settings or get_settings()
+
+    configure_logging(runtime_settings.log_level)
 
     application = FastAPI(
         title=runtime_settings.app_name,
-        version="0.1.0",
-        description=(
-            "Modern OSINT & Threat Recon Dashboard for "
-            "External Attack Surface Management and threat intelligence."
-        ),
         debug=runtime_settings.debug,
         lifespan=create_lifespan(runtime_settings),
     )
 
+    application.add_middleware(RequestIdMiddleware)
+
     application.add_middleware(
         CORSMiddleware,
         allow_origins=[
-            "http://localhost",
-            "http://127.0.0.1",
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
         ],
         allow_credentials=False,
-        allow_methods=[
-            "GET",
-            "POST",
-            "PUT",
-            "PATCH",
-            "DELETE",
-            "OPTIONS",
-        ],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Content-Type", "Authorization", "X-Request-ID"],
+        expose_headers=["X-Request-ID"],
     )
 
-    @application.get("/health", tags=["system"])
-    async def health() -> dict[str, str]:
-        """Return a lightweight process health response."""
+    @application.get("/health", tags=["health"])
+    async def health_check() -> dict[str, str]:
+        """Report application-level health."""
         return {
             "status": "ok",
             "service": "maurya",
