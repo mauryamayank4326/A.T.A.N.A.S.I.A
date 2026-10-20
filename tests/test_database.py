@@ -59,15 +59,9 @@ async def test_sqlite_wal_configuration(
 ) -> None:
     """Verify that SQLite runtime configuration is correct."""
     async with database_engine.connect() as connection:
-        journal_mode = await connection.execute(
-            text("PRAGMA journal_mode")
-        )
-        synchronous = await connection.execute(
-            text("PRAGMA synchronous")
-        )
-        foreign_keys = await connection.execute(
-            text("PRAGMA foreign_keys")
-        )
+        journal_mode = await connection.execute(text("PRAGMA journal_mode"))
+        synchronous = await connection.execute(text("PRAGMA synchronous"))
+        foreign_keys = await connection.execute(text("PRAGMA foreign_keys"))
 
         assert journal_mode.scalar_one().lower() == "wal"
         assert synchronous.scalar_one() == 1

@@ -31,7 +31,6 @@ from sqlalchemy.orm import DeclarativeBase
 
 from app.config import Settings
 
-
 SQLITE_BUSY_TIMEOUT_MS: Final[int] = 5_000
 
 
@@ -51,9 +50,7 @@ def _prepare_sqlite_directory(database_url: str) -> None:
     url = make_url(database_url)
 
     if not url.drivername.startswith("sqlite"):
-        raise ValueError(
-            "M.A.U.R.Y.A. persistence currently supports SQLite URLs only."
-        )
+        raise ValueError("M.A.U.R.Y.A. persistence currently supports SQLite URLs only.")
 
     database_path = url.database
 
@@ -82,9 +79,7 @@ def _configure_sqlite_connection(
         cursor.execute("PRAGMA journal_mode=WAL")
         cursor.execute("PRAGMA synchronous=NORMAL")
         cursor.execute("PRAGMA foreign_keys=ON")
-        cursor.execute(
-            f"PRAGMA busy_timeout={SQLITE_BUSY_TIMEOUT_MS}"
-        )
+        cursor.execute(f"PRAGMA busy_timeout={SQLITE_BUSY_TIMEOUT_MS}")
     finally:
         cursor.close()
 

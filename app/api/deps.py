@@ -33,9 +33,7 @@ async def get_db_session(
     )
 
     if not isinstance(session_factory, async_sessionmaker):
-        raise RuntimeError(
-            "Database session factory is not initialized."
-        )
+        raise RuntimeError("Database session factory is not initialized.")
 
     async with session_factory() as session:
         yield session
