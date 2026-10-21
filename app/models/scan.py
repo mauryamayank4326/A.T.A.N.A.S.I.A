@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import StrEnum
+from enum import Enum as PyEnum
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -13,10 +13,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
+    from app.models.exposed_port import ExposedPort
+    from app.models.subdomain import Subdomain
     from app.models.target import Target
 
-
-class ScanStatus(StrEnum):
+class ScanStatus(str, PyEnum):
     """Represent the lifecycle state of a reconnaissance scan."""
 
     PENDING = "pending"
@@ -60,4 +61,16 @@ class Scan(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     target: Mapped[Target] = relationship(
         back_populates="scans",
+    )
+
+    subdomains: Mapped[list["Subdomain"]] = relationship(
+        back_populates="scan",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    exposed_ports: Mapped[list["ExposedPort"]] = relationship(
+        back_populates="scan",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
