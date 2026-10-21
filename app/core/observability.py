@@ -41,10 +41,7 @@ def configure_logging(log_level: str) -> None:
         root_logger.addHandler(logging.StreamHandler())
 
     formatter = logging.Formatter(
-        fmt=(
-            "%(asctime)s %(levelname)s %(name)s "
-            "request_id=%(request_id)s %(message)s"
-        ),
+        fmt=("%(asctime)s %(levelname)s %(name)s request_id=%(request_id)s %(message)s"),
         datefmt="%Y-%m-%dT%H:%M:%S",
     )
 
@@ -52,8 +49,7 @@ def configure_logging(log_level: str) -> None:
         handler.setFormatter(formatter)
 
         if not any(
-            isinstance(existing_filter, RequestIdLogFilter)
-            for existing_filter in handler.filters
+            isinstance(existing_filter, RequestIdLogFilter) for existing_filter in handler.filters
         ):
             handler.addFilter(RequestIdLogFilter())
 
@@ -61,11 +57,7 @@ def configure_logging(log_level: str) -> None:
 def _resolve_request_id(headers: list[tuple[bytes, bytes]]) -> str:
     """Accept a valid UUID request ID or generate a fresh identifier."""
     supplied_value: bytes | None = next(
-        (
-            value
-            for name, value in headers
-            if name.lower() == REQUEST_ID_HEADER
-        ),
+        (value for name, value in headers if name.lower() == REQUEST_ID_HEADER),
         None,
     )
 
@@ -111,9 +103,7 @@ class RequestIdMiddleware:
                     for name, value in original_headers
                     if name.lower() != REQUEST_ID_HEADER
                 ]
-                filtered_headers.append(
-                    (REQUEST_ID_HEADER, request_id.encode("ascii"))
-                )
+                filtered_headers.append((REQUEST_ID_HEADER, request_id.encode("ascii")))
                 message = {
                     **message,
                     "headers": filtered_headers,

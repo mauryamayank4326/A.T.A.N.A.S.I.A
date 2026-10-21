@@ -1,4 +1,3 @@
-
 """Tests for M.A.U.R.Y.A. configuration validation."""
 
 import pytest
@@ -15,9 +14,7 @@ def test_default_settings_are_valid() -> None:
     assert settings.log_level == "INFO"
     assert settings.api_prefix == "/api/v1"
     assert settings.max_concurrency == 20
-    assert settings.database_url == (
-        "sqlite+aiosqlite:///./data/osint.db"
-    )
+    assert settings.database_url == ("sqlite+aiosqlite:///./data/osint.db")
 
 
 def test_environment_and_log_level_are_normalized() -> None:
@@ -130,7 +127,5 @@ def test_api_key_is_stored_as_secret() -> None:
     )
 
     assert isinstance(settings.shodan_api_key, SecretStr)
-    assert settings.shodan_api_key.get_secret_value() == (
-        "example-test-key"
-    )
+    assert settings.shodan_api_key.get_secret_value() == ("example-test-key")
     assert "example-test-key" not in str(settings.shodan_api_key)

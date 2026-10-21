@@ -8,7 +8,6 @@ from typing import Literal
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 EnvironmentName = Literal[
     "development",
     "test",
@@ -54,9 +53,7 @@ class Settings(BaseSettings):
         pattern=r"^/api/v[0-9]+$",
     )
 
-    database_url: str = (
-        "sqlite+aiosqlite:///./data/osint.db"
-    )
+    database_url: str = "sqlite+aiosqlite:///./data/osint.db"
 
     shodan_api_key: SecretStr | None = None
 
@@ -109,19 +106,13 @@ class Settings(BaseSettings):
         try:
             parsed_url = make_url(value)
         except (ArgumentError, ValueError, TypeError) as exc:
-            raise ValueError(
-                "database_url must be a valid SQLAlchemy URL"
-            ) from exc
+            raise ValueError("database_url must be a valid SQLAlchemy URL") from exc
 
         if parsed_url.drivername != "sqlite+aiosqlite":
-            raise ValueError(
-                "database_url must use sqlite+aiosqlite"
-            )
+            raise ValueError("database_url must use sqlite+aiosqlite")
 
         if parsed_url.database == "":
-            raise ValueError(
-                "database_url must specify a database or :memory:"
-            )
+            raise ValueError("database_url must specify a database or :memory:")
 
         return value
 

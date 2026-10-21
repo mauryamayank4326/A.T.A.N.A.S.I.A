@@ -97,8 +97,7 @@ def test_request_context_is_reset_after_request(
     assert request_id_context.get() == DEFAULT_REQUEST_ID
 
 
-def test_logging_filter_adds_request_id(
-) -> None:
+def test_logging_filter_adds_request_id() -> None:
     """The logging filter adds the context value to each record."""
     log_filter = RequestIdLogFilter()
     record = logging.LogRecord(
@@ -111,13 +110,9 @@ def test_logging_filter_adds_request_id(
         exc_info=None,
     )
 
-    token = request_id_context.set(
-        "c3c7f6d8-4e3c-4d3a-9f15-8dcd7c3c0c71"
-    )
+    token = request_id_context.set("c3c7f6d8-4e3c-4d3a-9f15-8dcd7c3c0c71")
     try:
         assert log_filter.filter(record) is True
-        assert record.request_id == (
-            "c3c7f6d8-4e3c-4d3a-9f15-8dcd7c3c0c71"
-        )
+        assert record.request_id == ("c3c7f6d8-4e3c-4d3a-9f15-8dcd7c3c0c71")
     finally:
         request_id_context.reset(token)

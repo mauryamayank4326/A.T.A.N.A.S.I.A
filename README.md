@@ -20,27 +20,29 @@ The platform is designed around:
 
 ## Current Status
 
-Version: 0.5.0
+Version: 0.6.0
 
-Lifecycle: Day 05 / 50
+Lifecycle: Day 06 / 50
 
-2. Motive of the day
-
-Build a centralized observability foundation that provides:
-
-Consistent logging: one configuration point controlled by the validated MAURYA_LOG_LEVEL setting.
-
-Request traceability: a unique request ID for each request, with support for valid UUIDs supplied by trusted clients or upstream infrastructure.
-
-Response correlation: return the request ID in the X-Request-ID response header.
-
-Safe diagnostics: avoid logging API keys, request bodies, or other sensitive payloads.
-
-Testability: verify logging configuration and request-ID behavior with automated tests.
-
-Architectural continuity: retain the Day 03 application lifecycle, database session dependency, and Day 04 settings model.
-
-The intended outcome is a foundation that will help diagnose future failures across API handling, persistence, and asynchronous intelligence collection.
+WEEK 01
+Foundation
+│
+├── Day 01 — Project Foundation
+├── Day 02 — Runtime / Database Foundation
+├── Day 03 — Application Integration
+├── Day 04 — Configuration Hardening
+└── Day 05 — Observability Foundation
+                         │
+                         ▼
+WEEK 02
+Relational Schema
+│
+└── Day 06 — Target + Scan ORM Foundation   ← CURRENT
+       │
+       ├── Day 07 → remaining reconnaissance entities
+       ├── Day 08 → relationships / constraints
+       ├── Day 09 → indexes / schema integrity
+       └── Day 10 → schema integration & verification
 ## Development
 
 Create a virtual environment:
