@@ -20,9 +20,9 @@ The platform is designed around:
 
 ## Current Status
 
-Version: 0.6.0
+Version: 0.7.0
 
-Lifecycle: Day 06 / 50
+Lifecycle: Day 07 / 50
 
 WEEK 01
 Foundation
@@ -37,9 +37,8 @@ Foundation
 WEEK 02
 Relational Schema
 │
-└── Day 06 — Target + Scan ORM Foundation   ← CURRENT
-       │
-       ├── Day 07 → remaining reconnaissance entities
+├── Day 06 — Target + Scan ORM Foundation   
+└──  Day 07 → remaining reconnaissance entities ← CURRENT
        ├── Day 08 → relationships / constraints
        ├── Day 09 → indexes / schema integrity
        └── Day 10 → schema integration & verification
