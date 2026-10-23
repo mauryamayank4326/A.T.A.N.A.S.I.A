@@ -13,9 +13,11 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
+    from app.models.discovered_email import DiscoveredEmail
     from app.models.exposed_port import ExposedPort
     from app.models.subdomain import Subdomain
     from app.models.target import Target
+
 
 class ScanStatus(str, PyEnum):
     """Represent the lifecycle state of a reconnaissance scan."""
@@ -63,13 +65,19 @@ class Scan(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         back_populates="scans",
     )
 
-    subdomains: Mapped[list["Subdomain"]] = relationship(
+    subdomains: Mapped[list[Subdomain]] = relationship(
         back_populates="scan",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
 
-    exposed_ports: Mapped[list["ExposedPort"]] = relationship(
+    exposed_ports: Mapped[list[ExposedPort]] = relationship(
+        back_populates="scan",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    discovered_emails: Mapped[list[DiscoveredEmail]] = relationship(
         back_populates="scan",
         cascade="all, delete-orphan",
         passive_deletes=True,
