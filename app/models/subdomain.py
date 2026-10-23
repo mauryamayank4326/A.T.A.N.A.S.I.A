@@ -48,6 +48,6 @@ class Subdomain(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         default="unknown",
     )
 
-    scan: Mapped["Scan"] = relationship(
+    scan: Mapped[Scan] = relationship(
         back_populates="subdomains",
     )

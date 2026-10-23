@@ -74,6 +74,6 @@ class ExposedPort(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=True,
     )
 
-    scan: Mapped["Scan"] = relationship(
+    scan: Mapped[Scan] = relationship(
         back_populates="exposed_ports",
     )

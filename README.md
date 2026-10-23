@@ -24,24 +24,9 @@ Version: 0.7.0
 
 Lifecycle: Day 07 / 50
 
-WEEK 01
-Foundation
-│
-├── Day 01 — Project Foundation
-├── Day 02 — Runtime / Database Foundation
-├── Day 03 — Application Integration
-├── Day 04 — Configuration Hardening
-└── Day 05 — Observability Foundation
-                         │
-                         ▼
-WEEK 02
-Relational Schema
-│
-├── Day 06 — Target + Scan ORM Foundation   
-└──  Day 07 → remaining reconnaissance entities ← CURRENT
-       ├── Day 08 → relationships / constraints
-       ├── Day 09 → indexes / schema integrity
-       └── Day 10 → schema integration & verification
+Day 08 extends M.A.U.R.Y.A.'s relational schema with discovered-email persistence and strengthens scan-level provenance for reconnaissance findings.
+
+The intended schema now represents targets, scan executions, subdomains, exposed ports, and discovered email addresses. All findings remain associated with their originating scan, providing a foundation for later collection and analysis services.
 ## Development
 
 Create a virtual environment:
