@@ -20,9 +20,9 @@ The platform is designed around:
 
 ## Current Status
 
-Version: 0.7.0
+Version: 0.8.0
 
-Lifecycle: Day 07 / 50
+Lifecycle: Day 08 / 50
 
 Day 08 extends M.A.U.R.Y.A.'s relational schema with discovered-email persistence and strengthens scan-level provenance for reconnaissance findings.
 
