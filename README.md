@@ -20,9 +20,9 @@ The platform is designed around:
 
 ## Current Status
 
-Version: 0.9.0
+Version: 0.8.0
 
-Lifecycle: Day 09 / 50
+Lifecycle: Day 08 / 50
 
 Day 09 adds composite indexes for scan-history lookups on scans and reconnaissance observations:
 
