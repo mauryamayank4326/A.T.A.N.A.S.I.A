@@ -240,3 +240,42 @@ async def test_scan_accepts_explicit_uuid(
     stored_scan = result.scalar_one()
 
     assert stored_scan.id == scan_id
+
+
+def test_scan_history_index_is_registered() -> None:
+    """Ensure target scan-history queries have a supporting composite index."""
+    indexes = {
+        index.name: tuple(column.name for column in index.columns)
+        for index in Scan.__table__.indexes
+    }
+
+    assert indexes["ix_scans_target_id_created_at"] == (
+        "target_id",
+        "created_at",
+    )
+
+
+def test_observation_history_indexes_are_registered() -> None:
+    """Ensure each observation model has its scan-history index."""
+    models_and_indexes = (
+        (
+            Subdomain,
+            "ix_subdomains_scan_id_created_at",
+        ),
+        (
+            ExposedPort,
+            "ix_exposed_ports_scan_id_created_at",
+        ),
+        (
+            DiscoveredEmail,
+            "ix_discovered_emails_scan_id_created_at",
+        ),
+    )
+
+    for model, expected_name in models_and_indexes:
+        indexes = {
+            index.name: tuple(column.name for column in index.columns)
+            for index in model.__table__.indexes
+        }
+
+        assert indexes[expected_name] == ("scan_id", "created_at")

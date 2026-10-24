@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, ForeignKey, String, UniqueConstraint
+from sqlalchemy import CheckConstraint, ForeignKey, Index, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -36,6 +36,11 @@ class DiscoveredEmail(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         CheckConstraint(
             "length(trim(source)) > 0",
             name="ck_discovered_emails_nonempty_source",
+        ),
+        Index(
+            "ix_discovered_emails_scan_id_created_at",
+            "scan_id",
+            "created_at",
         ),
     )
 

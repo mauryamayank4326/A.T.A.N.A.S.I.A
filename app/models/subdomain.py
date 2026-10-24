@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, String, UniqueConstraint
+from sqlalchemy import ForeignKey, Index, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -28,6 +28,11 @@ class Subdomain(UUIDPrimaryKeyMixin, TimestampMixin, Base):
             "scan_id",
             "fqdn",
             name="uq_subdomains_scan_id_fqdn",
+        ),
+        Index(
+            "ix_subdomains_scan_id_created_at",
+            "scan_id",
+            "created_at",
         ),
     )
 

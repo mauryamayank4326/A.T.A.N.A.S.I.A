@@ -27,6 +27,9 @@ Lifecycle: Day 07 / 50
 Day 08 extends M.A.U.R.Y.A.'s relational schema with discovered-email persistence and strengthens scan-level provenance for reconnaissance findings.
 
 The intended schema now represents targets, scan executions, subdomains, exposed ports, and discovered email addresses. All findings remain associated with their originating scan, providing a foundation for later collection and analysis services.
+
+Application startup creates any missing ORM tables in the configured SQLite database. This initialization is additive and is not a migration: it does not alter existing tables or add indexes to tables that already exist. Use a migration when evolving an existing database schema.
+
 ## Development
 
 Create a virtual environment:
