@@ -7,7 +7,7 @@ from enum import Enum as PyEnum
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from sqlalchemy import DateTime, Enum, ForeignKey
+from sqlalchemy import DateTime, Enum, ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, UUIDPrimaryKeyMixin
@@ -32,6 +32,14 @@ class Scan(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     """Represent one reconnaissance execution against a target."""
 
     __tablename__ = "scans"
+
+    __table_args__ = (
+        Index(
+            "ix_scans_target_id_created_at",
+            "target_id",
+            "created_at",
+        ),
+    )
 
     target_id: Mapped[UUID] = mapped_column(
         ForeignKey("targets.id", ondelete="CASCADE"),

@@ -19,7 +19,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Final
 
-from sqlalchemy import event, text
+from sqlalchemy import event
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -27,15 +27,11 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase
 
 from app.config import Settings
+from app.models import Base
 
 SQLITE_BUSY_TIMEOUT_MS: Final[int] = 5_000
-
-
-class Base(DeclarativeBase):
-    """Declarative base for all M.A.U.R.Y.A. ORM entities."""
 
 
 def _prepare_sqlite_directory(database_url: str) -> None:
@@ -137,10 +133,10 @@ def create_session_factory(
 
 
 async def initialize_database(engine: AsyncEngine) -> None:
-    """Verify that the database is reachable.
+    """Create missing ORM tables and verify database connectivity.
 
-    ORM table creation is intentionally deferred to the
-    domain-schema milestone.
+    This development-stage initialization is additive: ``create_all`` creates
+    missing tables but does not alter existing tables or apply migrations.
 
     Args:
         engine: SQLAlchemy asynchronous engine.
@@ -148,8 +144,8 @@ async def initialize_database(engine: AsyncEngine) -> None:
     Raises:
         sqlalchemy.exc.SQLAlchemyError: If SQLite cannot be reached.
     """
-    async with engine.connect() as connection:
-        await connection.execute(text("SELECT 1"))
+    async with engine.begin() as connection:
+        await connection.run_sync(Base.metadata.create_all)
 
 
 async def dispose_database(engine: AsyncEngine) -> None:

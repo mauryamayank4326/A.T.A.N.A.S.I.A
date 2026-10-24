@@ -8,6 +8,7 @@ from uuid import UUID
 from sqlalchemy import (
     CheckConstraint,
     ForeignKey,
+    Index,
     Integer,
     String,
     UniqueConstraint,
@@ -44,6 +45,11 @@ class ExposedPort(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         CheckConstraint(
             "protocol IN ('tcp', 'udp')",
             name="ck_exposed_ports_valid_protocol",
+        ),
+        Index(
+            "ix_exposed_ports_scan_id_created_at",
+            "scan_id",
+            "created_at",
         ),
     )
 
