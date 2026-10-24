@@ -20,15 +20,16 @@ The platform is designed around:
 
 ## Current Status
 
-Version: 0.7.0
+Version: 0.9.0
 
-Lifecycle: Day 07 / 50
+Lifecycle: Day 09 / 50
 
-Day 08 extends M.A.U.R.Y.A.'s relational schema with discovered-email persistence and strengthens scan-level provenance for reconnaissance findings.
+Day 09 adds composite indexes for scan-history lookups on scans and reconnaissance observations:
 
-The intended schema now represents targets, scan executions, subdomains, exposed ports, and discovered email addresses. All findings remain associated with their originating scan, providing a foundation for later collection and analysis services.
+- scans: `(target_id, created_at)`;
+- subdomains, exposed ports, and discovered emails: `(scan_id, created_at)`.
 
-Application startup creates any missing ORM tables in the configured SQLite database. This initialization is additive and is not a migration: it does not alter existing tables or add indexes to tables that already exist. Use a migration when evolving an existing database schema.
+The tests verify that these indexes are declared in SQLAlchemy metadata and created in SQLite by schema initialization. They do not measure query performance. Startup initialization creates missing tables but does not migrate existing tables or add indexes to tables that were already created; use a migration when evolving an existing database schema.
 
 ## Development
 
