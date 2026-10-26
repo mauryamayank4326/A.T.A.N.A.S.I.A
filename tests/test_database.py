@@ -4,7 +4,7 @@ from collections.abc import AsyncGenerator
 from pathlib import Path
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncEngine
 
@@ -12,8 +12,18 @@ from app.config import Settings
 from app.core.database import (
     create_database_engine,
     create_session_factory,
+    dispose_database,
     initialize_database,
 )
+from app.models import Base
+
+EXPECTED_TABLES = {
+    "targets",
+    "scans",
+    "subdomains",
+    "exposed_ports",
+    "discovered_emails",
+}
 
 
 @pytest.fixture
@@ -36,9 +46,22 @@ async def database_engine(
     """Create and dispose an isolated test database engine."""
     engine = create_database_engine(database_settings)
 
-    yield engine
+    try:
+        yield engine
+    finally:
+        await dispose_database(engine)
 
-    await engine.dispose()
+async def _get_table_names(engine: AsyncEngine) -> set[str]:
+    """Return the table names present in the database."""
+    async with engine.connect() as connection:
+        return await connection.run_sync(
+            lambda sync_connection: set(inspect(sync_connection).get_table_names())
+        )
+
+
+def test_all_expected_models_are_registered() -> None:
+    """Verify every expected model is registered on the declarative base."""
+    assert EXPECTED_TABLES.issubset(set(Base.metadata.tables))
 
 
 @pytest.mark.asyncio
@@ -48,20 +71,26 @@ async def test_database_connectivity(
     """Verify initialization creates all registered model tables."""
     await initialize_database(database_engine)
 
+    table_names = await _get_table_names(database_engine)
+
     async with database_engine.connect() as connection:
-        tables = await connection.execute(
-            text("SELECT name FROM sqlite_master WHERE type = 'table'")
-        )
         result = await connection.execute(text("SELECT 1"))
 
-        assert {
-            "targets",
-            "scans",
-            "subdomains",
-            "exposed_ports",
-            "discovered_emails",
-        }.issubset(set(tables.scalars()))
+        assert EXPECTED_TABLES.issubset(table_names)
         assert result.scalar_one() == 1
+
+
+@pytest.mark.asyncio
+async def test_initialize_database_is_idempotent(
+    database_engine: AsyncEngine,
+) -> None:
+    """Verify initialization can run repeatedly without error."""
+    await initialize_database(database_engine)
+    await initialize_database(database_engine)
+
+    table_names = await _get_table_names(database_engine)
+
+    assert EXPECTED_TABLES.issubset(table_names)
 
 
 @pytest.mark.asyncio
