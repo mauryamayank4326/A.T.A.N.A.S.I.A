@@ -20,16 +20,18 @@ The platform is designed around:
 
 ## Current Status
 
-Version: 0.8.0
+Version: 0.10.0
 
-Lifecycle: Day 08 / 50
+Lifecycle: Day 10 / 50
 
-Day 09 adds composite indexes for scan-history lookups on scans and reconnaissance observations:
-
-- scans: `(target_id, created_at)`;
-- subdomains, exposed ports, and discovered emails: `(scan_id, created_at)`.
-
-The tests verify that these indexes are declared in SQLAlchemy metadata and created in SQLite by schema initialization. They do not measure query performance. Startup initialization creates missing tables but does not migrate existing tables or add indexes to tables that were already created; use a migration when evolving an existing database schema.
+1. Motive of the Day
+- Consolidate the existing database initialization and resource lifecycle.
+- Verify registration of all five ORM entities.
+- Establish isolated database lifecycle tests.
+- Validate table creation, foreign-key enforcement, and metadata consistency.
+- Confirm that indexes declared in model metadata are created in a fresh database.
+- Preserve existing application settings, session-factory behavior, and the configured database.
+Day 10 exit goal: a repeatable, testable database foundation that Week 3 can safely use for FastAPI dependency injection and scan creation.
 
 ## Development
 
