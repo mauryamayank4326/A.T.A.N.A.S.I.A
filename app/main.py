@@ -4,15 +4,12 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
-from typing import Annotated
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.health import health_check as api_health_check
+from app.api.v1.router import api_router
 from app.config import Settings, get_settings
 from app.core.database import (
     create_database_engine,
@@ -20,7 +17,6 @@ from app.core.database import (
     dispose_database,
     initialize_database,
 )
-from app.core.dependencies import get_db_session
 from app.core.observability import (
     RequestIdMiddleware,
     configure_logging,
@@ -81,31 +77,17 @@ def create_application(
         expose_headers=["X-Request-ID"],
     )
 
+    application.include_router(
+        api_router,
+        prefix=runtime_settings.api_prefix,
+    )
+
     application.add_api_route(
         f"{runtime_settings.api_prefix}/health",
         api_health_check,
         methods=["GET"],
         tags=["health"],
     )
-
-    @application.get("/health", tags=["health"])
-    async def health_check(
-        session: Annotated[AsyncSession, Depends(get_db_session)],
-    ) -> dict[str, str]:
-        """Report application and database availability."""
-        try:
-            await session.execute(text("SELECT 1"))
-        except SQLAlchemyError as exc:
-            raise HTTPException(
-                status_code=503,
-                detail="Database service is unavailable.",
-            ) from exc
-
-        return {
-            "status": "ok",
-            "service": "maurya",
-            "database": "connected",
-        }
 
     return application
 

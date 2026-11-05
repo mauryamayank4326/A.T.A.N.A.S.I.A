@@ -1,3 +1,5 @@
+"""Health endpoints for API version 1."""
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -7,10 +9,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_db_session
 
-router = APIRouter()
+router = APIRouter(tags=["health"])
 
 
-@router.get("/health", tags=["health"])
+@router.get("/health", summary="Check application and database health")
 async def health_check(
     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> dict[str, str]:
@@ -26,5 +28,6 @@ async def health_check(
 
     return {
         "status": "ok",
+        "service": "maurya",
         "database": "connected",
     }

@@ -20,15 +20,19 @@ Longer-term goals include:
 
 ## Current Status
 
-Development milestone: 0.11.0
+Development milestone: 0.12.0
 
-Lifecycle: Day 11 / 50
+Lifecycle: Day 12 / 50
 
-The current implementation provides a FastAPI application with `/health` and
-`/api/v1/health` endpoints, asynchronous SQLAlchemy persistence on SQLite,
-environment-backed settings, and request ID middleware. Both health endpoints
-check database connectivity. Network collection, OSINT workers, visualization,
-and forensic export remain longer-term goals.
+Day 11 established the FastAPI application factory and health endpoint. On Day 12,
+the API was organized into a dedicated package with versioned route modules:
+
+1. Added the v1 API package and central router.
+2. Moved health endpoint implementation into its own route module.
+3. Registered the API router with the application factory using the configured
+   API prefix.
+4. Updated tests to verify the configured prefix and confirm the old root
+   `/health` path is not registered.
 
 ## Development
 
@@ -48,9 +52,9 @@ cp .env.example .env
 ```
 
 The app reads settings with the `MAURYA_` prefix. By default, it uses
-`sqlite+aiosqlite:///./data/osint.db` and serves the versioned health endpoint
-at `http://127.0.0.1:8000/api/v1/health`; the root health endpoint is at
-`http://127.0.0.1:8000/health`.
+`sqlite+aiosqlite:///./data/osint.db` and serves the health endpoint at
+`http://127.0.0.1:8000/api/v1/health`. The API prefix defaults to `/api/v1` and
+can be overridden through application settings.
 
 Run the app:
 
