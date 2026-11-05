@@ -51,6 +51,7 @@ async def database_engine(
     finally:
         await dispose_database(engine)
 
+
 async def _get_table_names(engine: AsyncEngine) -> set[str]:
     """Return the table names present in the database."""
     async with engine.connect() as connection:

@@ -9,7 +9,7 @@ Modern OSINT & Threat Recon Dashboard.
 M.A.U.R.Y.A. is an asynchronous External Attack Surface Management
 (EASM) and Cyber Threat Intelligence (CTI) reconnaissance platform.
 
-The platform is designed around:
+Longer-term goals include:
 
 - asynchronous network collection;
 - modular OSINT workers;
@@ -20,23 +20,48 @@ The platform is designed around:
 
 ## Current Status
 
-Version: 0.10.0
+Development milestone: 0.11.0
 
-Lifecycle: Day 10 / 50
+Lifecycle: Day 11 / 50
 
-1. Motive of the Day
-- Consolidate the existing database initialization and resource lifecycle.
-- Verify registration of all five ORM entities.
-- Establish isolated database lifecycle tests.
-- Validate table creation, foreign-key enforcement, and metadata consistency.
-- Confirm that indexes declared in model metadata are created in a fresh database.
-- Preserve existing application settings, session-factory behavior, and the configured database.
-Day 10 exit goal: a repeatable, testable database foundation that Week 3 can safely use for FastAPI dependency injection and scan creation.
+The current implementation provides a FastAPI application with `/health` and
+`/api/v1/health` endpoints, asynchronous SQLAlchemy persistence on SQLite,
+environment-backed settings, and request ID middleware. Both health endpoints
+check database connectivity. Network collection, OSINT workers, visualization,
+and forensic export remain longer-term goals.
 
 ## Development
 
-Create a virtual environment:
+The project requires Python 3.10 or later. From the project root, create and
+activate a virtual environment, then install the development dependencies:
 
 ```bash
-python3.10 -m venv .venv
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-dev.txt
+```
+
+Create a local environment file if you want to override the defaults:
+
+```bash
+cp .env.example .env
+```
+
+The app reads settings with the `MAURYA_` prefix. By default, it uses
+`sqlite+aiosqlite:///./data/osint.db` and serves the versioned health endpoint
+at `http://127.0.0.1:8000/api/v1/health`; the root health endpoint is at
+`http://127.0.0.1:8000/health`.
+
+Run the app:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Run tests and code-quality checks:
+
+```bash
+pytest -v
+ruff check .
+ruff format --check .
 ```

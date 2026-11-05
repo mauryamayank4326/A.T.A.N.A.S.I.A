@@ -40,6 +40,7 @@ def test_response_contains_generated_request_id(
     assert response.json() == {
         "status": "ok",
         "service": "maurya",
+        "database": "connected",
     }
     UUID(response.headers["x-request-id"])
 

@@ -28,6 +28,7 @@ def test_health_endpoint(tmp_path: Path) -> None:
     assert response.json() == {
         "status": "ok",
         "service": "maurya",
+        "database": "connected",
     }
 
     assert database_path.exists()
@@ -49,3 +50,4 @@ def test_application_uses_supplied_settings(tmp_path: Path) -> None:
     with TestClient(application):
         assert application.state.settings is settings
         assert application.state.db_engine.url.database == str(database_path)
+        assert application.state.db_session_factory is not None
