@@ -22,6 +22,7 @@ def test_health_endpoint_returns_database_status(tmp_path):
     assert response.status_code == 200
     assert response.json() == {
         "status": "ok",
+        "service": "maurya",
         "database": "connected",
     }
 

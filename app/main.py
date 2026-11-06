@@ -8,7 +8,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1.health import health_check as api_health_check
 from app.api.v1.router import api_router
 from app.config import Settings, get_settings
 from app.core.database import (
@@ -82,12 +81,8 @@ def create_application(
         prefix=runtime_settings.api_prefix,
     )
 
-    application.add_api_route(
-        f"{runtime_settings.api_prefix}/health",
-        api_health_check,
-        methods=["GET"],
-        tags=["health"],
-    )
+    if runtime_settings.api_prefix == "/api/v1":
+        application.include_router(api_router)
 
     return application
 

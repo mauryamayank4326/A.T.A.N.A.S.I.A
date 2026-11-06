@@ -50,7 +50,7 @@ class Settings(BaseSettings):
 
     api_prefix: str = Field(
         default="/api/v1",
-        pattern=r"^/api/v[0-9]+$",
+        pattern=r"^/[A-Za-z0-9_-]+/v[0-9]+$",
     )
 
     database_url: str = "sqlite+aiosqlite:///./data/osint.db"
