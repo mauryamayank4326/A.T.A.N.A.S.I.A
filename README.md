@@ -20,19 +20,30 @@ Longer-term goals include:
 
 ## Current Status
 
-Development milestone: 0.12.0
+Development milestone: 0.13.0
 
-Lifecycle: Day 12 / 50
+Lifecycle: Day 13 / 50
 
-Day 11 established the FastAPI application factory and health endpoint. On Day 12,
-the API was organized into a dedicated package with versioned route modules:
+Today's focus: Establish strict, reusable API data contracts with Pydantic v2,
+building on the versioned router architecture introduced on Day 12.
 
-1. Added the v1 API package and central router.
-2. Moved health endpoint implementation into its own route module.
-3. Registered the API router with the application factory using the configured
-   API prefix.
-4. Updated tests to verify the configured prefix and confirm the old root
-   `/health` path is not registered.
+Day 12 organized the API into versioned routers and centralized database
+dependencies and application lifecycle management. Day 13 adds a schema layer
+for validating incoming data and serializing outgoing responses:
+
+- `app/schemas/common.py` defines shared request and ORM-read schema settings.
+- `app/schemas/target.py` validates and normalizes target domains and defines
+  target response serialization.
+- `app/schemas/scan.py` defines scan request and response data contracts.
+- `tests/test_schemas.py` covers validation and ORM-style serialization.
+
+The request schemas reject unexpected fields. Target domains are normalized to
+lowercase with trailing dots removed, then checked for valid DNS-domain syntax.
+Scan requests validate target UUIDs. Read schemas can load ORM attributes;
+target UUIDs are serialized as strings.
+
+Roadmap boundary: Day 13 establishes schemas only. It does not implement the
+scan endpoint; `/api/v1/scans` is planned for Day 15.
 
 ## Development
 
@@ -53,8 +64,8 @@ cp .env.example .env
 
 The app reads settings with the `MAURYA_` prefix. By default, it uses
 `sqlite+aiosqlite:///./data/osint.db` and serves the health endpoint at
-`http://127.0.0.1:8000/api/v1/health`. The API prefix defaults to `/api/v1` and
-can be overridden through application settings.
+`http://127.0.0.1:8000/api/v1/health`. The API prefix defaults to `/api/v1`;
+it can be overridden through application settings.
 
 Run the app:
 
