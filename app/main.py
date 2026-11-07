@@ -6,7 +6,9 @@ from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.v1.router import api_router
 from app.config import Settings, get_settings
@@ -19,6 +21,13 @@ from app.core.database import (
 from app.core.observability import (
     RequestIdMiddleware,
     configure_logging,
+)
+from app.exceptions import APIError
+from app.handlers import (
+    api_error_handler,
+    http_error_handler,
+    unexpected_error_handler,
+    validation_error_handler,
 )
 
 
@@ -60,6 +69,20 @@ def create_application(
         title=runtime_settings.app_name,
         debug=runtime_settings.debug,
         lifespan=create_lifespan(runtime_settings),
+    )
+
+    application.add_exception_handler(APIError, api_error_handler)
+    application.add_exception_handler(
+        RequestValidationError,
+        validation_error_handler,
+    )
+    application.add_exception_handler(
+        StarletteHTTPException,
+        http_error_handler,
+    )
+    application.add_exception_handler(
+        Exception,
+        unexpected_error_handler,
     )
 
     application.add_middleware(RequestIdMiddleware)

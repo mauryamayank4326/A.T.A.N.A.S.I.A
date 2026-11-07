@@ -20,30 +20,20 @@ Longer-term goals include:
 
 ## Current Status
 
-Development milestone: 0.13.0
+Development milestone: 0.14.0
 
-Lifecycle: Day 13 / 50
+Lifecycle: Day 14 / 50
 
-Today's focus: Establish strict, reusable API data contracts with Pydantic v2,
-building on the versioned router architecture introduced on Day 12.
+Day 14 adds a consistent API error contract and centralized exception handling.
+Errors use a standard `error` envelope containing a machine-readable `code`,
+a safe human-readable `message`, and a `details` list.
 
-Day 12 organized the API into versioned routers and centralized database
-dependencies and application lifecycle management. Day 13 adds a schema layer
-for validating incoming data and serializing outgoing responses:
-
-- `app/schemas/common.py` defines shared request and ORM-read schema settings.
-- `app/schemas/target.py` validates and normalizes target domains and defines
-  target response serialization.
-- `app/schemas/scan.py` defines scan request and response data contracts.
-- `tests/test_schemas.py` covers validation and ORM-style serialization.
-
-The request schemas reject unexpected fields. Target domains are normalized to
-lowercase with trailing dots removed, then checked for valid DNS-domain syntax.
-Scan requests validate target UUIDs. Read schemas can load ORM attributes;
-target UUIDs are serialized as strings.
-
-Roadmap boundary: Day 13 establishes schemas only. It does not implement the
-scan endpoint; `/api/v1/scans` is planned for Day 15.
+The application handles validation errors with safe field-level details that
+do not echo invalid input, normalizes HTTP errors (including 404), and returns
+a generic 500 response for unexpected failures while logging their details
+server-side. Expected application errors can use `APIError` to set a stable
+code, message, and HTTP status. The existing successful response behavior and
+Day 13 request schemas are unchanged.
 
 ## Development
 

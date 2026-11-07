@@ -1,5 +1,6 @@
 """Public API schemas for M.A.U.R.Y.A."""
 
+from app.schemas.error import ErrorBody, ErrorDetail, ErrorResponse
 from app.schemas.scan import ScanCreate, ScanRead
 from app.schemas.target import TargetCreate, TargetRead
 
@@ -8,4 +9,7 @@ __all__ = [
     "ScanRead",
     "TargetCreate",
     "TargetRead",
+    "ErrorBody",
+    "ErrorDetail",
+    "ErrorResponse",
 ]
