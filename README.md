@@ -20,21 +20,46 @@ Longer-term goals include:
 
 ## Current Status
 
-Development milestone: 0.14.0
+Development milestone: 0.15.0
 
-Lifecycle: Day 14 / 50
+Lifecycle: Day 15 / 50
 
-Day 14 adds a consistent API error contract and centralized exception handling.
-Errors use a standard `error` envelope containing a machine-readable `code`,
-a safe human-readable `message`, and a `details` list.
+A scan is the central operational unit of M.A.U.R.Y.A.
 
-The application handles validation errors with safe field-level details that
-do not echo invalid input, normalizes HTTP errors (including 404), and returns
-a generic 500 response for unexpected failures while logging their details
-server-side. Expected application errors can use `APIError` to set a stable
-code, message, and HTTP status. The existing successful response behavior and
-Day 13 request schemas are unchanged.
+Every future reconnaissance operation—subdomain discovery, WHOIS collection, Shodan enrichment, TCP probing, and email harvesting—will be associated with a scan.
 
+Today establishes the API entry point for that lifecycle.
+
+Objectives
+1. Accept a target UUID through a validated request.
+2. Confirm that the target exists.
+3. Create a new scan record.
+4. Assign the initial pending status.
+5. Persist the record using an asynchronous database session.
+6. Return a structured ScanRead response.
+7. Use the Day 14 error contract for missing targets and database conflicts.
+8. Test successful creation and failure scenarios.
+Expected request:
+POST /api/v1/scans
+Content-Type: application/json
+
+
+{
+  "target_id": "7f7c8f7c-5e2b-4d4c-8f7c-123456789abc"
+}
+
+
+Expected successful response (assuming the target exists):
+{
+  "id": "generated-scan-uuid",
+  "target_id": "7f7c8f7c-5e2b-4d4c-8f7c-123456789abc",
+  "status": "pending",
+  "started_at": null,
+  "completed_at": null
+}
+
+
+The UUID shown for the scan is illustrative; the database model generates the actual identifier.
 ## Development
 
 The project requires Python 3.10 or later. From the project root, create and
