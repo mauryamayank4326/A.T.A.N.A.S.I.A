@@ -24,42 +24,36 @@ Development milestone: 0.15.0
 
 Lifecycle: Day 15 / 50
 
-A scan is the central operational unit of M.A.U.R.Y.A.
+Certificate Transparency (CT) logs provide publicly observable records of certificates issued for domain names.
 
-Every future reconnaissance operation—subdomain discovery, WHOIS collection, Shodan enrichment, TCP probing, and email harvesting—will be associated with a scan.
+These records can reveal:
+- Previously unknown subdomains.
+- Development and staging hostnames.
+- Authentication and administrative hostnames.
+- API and service hostnames.
+- Alternative hostnames associated with an organization's domain.
+For example, a certificate associated with example.com may contain:
+example.com
+www.example.com
+api.example.com
+dev.example.com
+staging.example.com
+mail.example.com
 
-Today establishes the API entry point for that lifecycle.
 
+M.A.U.R.Y.A. will use crt.sh as its first passive subdomain discovery source.
 Objectives
-1. Accept a target UUID through a validated request.
-2. Confirm that the target exists.
-3. Create a new scan record.
-4. Assign the initial pending status.
-5. Persist the record using an asynchronous database session.
-6. Return a structured ScanRead response.
-7. Use the Day 14 error contract for missing targets and database conflicts.
-8. Test successful creation and failure scenarios.
-Expected request:
-POST /api/v1/scans
-Content-Type: application/json
+1. Create a dedicated reconnaissance service module.
+2. Query crt.sh asynchronously using HTTPX.
+3. Parse certificate JSON responses.
+4. Extract hostnames from certificate records.
+5. Normalize wildcard and multiline hostname entries.
+6. Validate that discovered names belong to the requested domain.
+7. Deduplicate results.
+8. Handle network errors, HTTP errors, and malformed responses.
+9. Add automated tests using mocked HTTP responses.
+Expected output: A normalized collection of subdomains that can later be associated with a persisted scan.
 
-
-{
-  "target_id": "7f7c8f7c-5e2b-4d4c-8f7c-123456789abc"
-}
-
-
-Expected successful response (assuming the target exists):
-{
-  "id": "generated-scan-uuid",
-  "target_id": "7f7c8f7c-5e2b-4d4c-8f7c-123456789abc",
-  "status": "pending",
-  "started_at": null,
-  "completed_at": null
-}
-
-
-The UUID shown for the scan is illustrative; the database model generates the actual identifier.
 ## Development
 
 The project requires Python 3.10 or later. From the project root, create and
