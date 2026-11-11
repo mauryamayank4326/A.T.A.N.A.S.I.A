@@ -14,16 +14,8 @@ def test_extract_hostnames_normalizes_and_deduplicates() -> None:
     """Normalize wildcard and multiline certificate names."""
 
     records = [
-        {
-            "name_value": (
-                "WWW.EXAMPLE.COM\n"
-                "*.example.com\n"
-                "api.example.com"
-            )
-        },
-        {
-            "common_name": "api.example.com"
-        },
+        {"name_value": ("WWW.EXAMPLE.COM\n*.example.com\napi.example.com")},
+        {"common_name": "api.example.com"},
     ]
 
     result = _extract_hostnames(records, "example.com")
@@ -37,6 +29,7 @@ def test_extract_hostnames_normalizes_and_deduplicates() -> None:
         "www.example.com",
     ]
 
+
 @pytest.mark.asyncio
 async def test_fetch_subdomains_success() -> None:
     """Retrieve and normalize a successful crt.sh response."""
@@ -49,9 +42,7 @@ async def test_fetch_subdomains_success() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(200, json=records)
 
-    async with httpx.AsyncClient(
-        transport=httpx.MockTransport(handler)
-    ) as client:
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
         result = await fetch_subdomains("example.com", client)
 
     assert result == [
@@ -64,22 +55,12 @@ async def test_fetch_subdomains_success() -> None:
 async def test_fetch_subdomains_rejects_out_of_scope_names() -> None:
     """Never return hostnames belonging to unrelated domains."""
 
-    records = [
-        {
-            "name_value": (
-                "api.example.com\n"
-                "example.com.attacker.net\n"
-                "attacker.net"
-            )
-        }
-    ]
+    records = [{"name_value": ("api.example.com\nexample.com.attacker.net\nattacker.net")}]
 
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(200, json=records)
 
-    async with httpx.AsyncClient(
-        transport=httpx.MockTransport(handler)
-    ) as client:
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
         result = await fetch_subdomains("example.com", client)
 
     assert result == ["api.example.com"]
@@ -92,9 +73,7 @@ async def test_fetch_subdomains_handles_http_failure() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(503)
 
-    async with httpx.AsyncClient(
-        transport=httpx.MockTransport(handler)
-    ) as client:
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
         with pytest.raises(CRTShError):
             await fetch_subdomains("example.com", client)
 
@@ -110,9 +89,7 @@ async def test_fetch_subdomains_handles_invalid_json() -> None:
             headers={"Content-Type": "application/json"},
         )
 
-    async with httpx.AsyncClient(
-        transport=httpx.MockTransport(handler)
-    ) as client:
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
         with pytest.raises(CRTShError):
             await fetch_subdomains("example.com", client)
 

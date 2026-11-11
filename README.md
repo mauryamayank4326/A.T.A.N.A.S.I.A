@@ -20,40 +20,31 @@ Longer-term goals include:
 
 ## Current Status
 
-Development milestone: 0.15.0
+Development milestone: 0.16.0
 
-Lifecycle: Day 15 / 50
+Lifecycle: Day 16 / 50
 
-Certificate Transparency (CT) logs provide publicly observable records of certificates issued for domain names.
+Objective: Build an asynchronous WHOIS intelligence service that retrieves and normalizes publicly available domain registration metadata.
 
-These records can reveal:
-- Previously unknown subdomains.
-- Development and staging hostnames.
-- Authentication and administrative hostnames.
-- API and service hostnames.
-- Alternative hostnames associated with an organization's domain.
-For example, a certificate associated with example.com may contain:
-example.com
-www.example.com
-api.example.com
-dev.example.com
-staging.example.com
-mail.example.com
+The service should extract:
+- Registrar information
+- Domain creation date
+- Domain expiration date
+- Last updated date
+- Nameservers
+- Registrant organization, when available
+- Country, when available
+- Registration-related email addresses, when available
+Scope boundaries
+Included today	Deferred to later days
+WHOIS lookup	Shodan intelligence
+Registration metadata extraction	TCP service scanning
+Date normalization	Database persistence
+Nameserver extraction	Scan orchestration
+Error handling and timeout	Dashboard integration
+Async execution	API endpoint integration
 
-
-M.A.U.R.Y.A. will use crt.sh as its first passive subdomain discovery source.
-Objectives
-1. Create a dedicated reconnaissance service module.
-2. Query crt.sh asynchronously using HTTPX.
-3. Parse certificate JSON responses.
-4. Extract hostnames from certificate records.
-5. Normalize wildcard and multiline hostname entries.
-6. Validate that discovered names belong to the requested domain.
-7. Deduplicate results.
-8. Handle network errors, HTTP errors, and malformed responses.
-9. Add automated tests using mocked HTTP responses.
-Expected output: A normalized collection of subdomains that can later be associated with a persisted scan.
-
+We will not modify the database schema or expose a new API endpoint today.
 ## Development
 
 The project requires Python 3.10 or later. From the project root, create and
