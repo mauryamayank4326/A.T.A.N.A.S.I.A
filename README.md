@@ -20,32 +20,40 @@ Longer-term goals include:
 
 ## Current Status
 
-Development milestone: 0.17.0
+Development milestone: 0.18.0
 
-Lifecycle: Day 17 / 50
+Lifecycle: Day 18 / 50
 
-Objective: Build an asynchronous WHOIS intelligence service that retrieves and normalizes publicly available domain registration metadata.
+Objective
+Create a unified passive reconnaissance service that combines crt.sh and WHOIS intelligence for a single target domain.
 
-The service should extract:
-- Registrar information
-- Domain creation date
-- Domain expiration date
-- Last updated date
-- Nameservers
-- Registrant organization, when available
-- Country, when available
-- Registration-related email addresses, when available
-Scope boundaries
-Included today	Deferred to later days
-WHOIS lookup	Shodan intelligence
-Registration metadata extraction	TCP service scanning
-Date normalization	Database persistence
-Nameserver extraction	Scan orchestration
-Error handling and timeout	Dashboard integration
-Async execution	API endpoint integration
+The service will:
+1. Validate and normalize the target domain.
+2. Execute crt.sh and WHOIS lookups concurrently.
+3. Collect discovered subdomains.
+4. Collect registration metadata.
+5. Handle partial source failures.
+6. Return a predictable result structure.
+7. Remain independent of FastAPI routes and database persistence.
+Expected output
+For a target such as example.com, the service should produce a result conceptually like:
+Target: example.com
 
-We will not modify the database schema or expose a new API endpoint today.
-## Development
+Certificate Transparency:
+    api.example.com
+    www.example.com
+
+WHOIS:
+    Registrar: Example Registrar
+    Created: 2020-01-01
+    Expires: 2030-01-01
+
+Source Status:
+    crt.sh: successful
+    WHOIS: successful
+
+
+This is an illustrative output, not a claim about live lookup results.
 
 The project requires Python 3.10 or later. From the project root, create and
 activate a virtual environment, then install the development dependencies:
