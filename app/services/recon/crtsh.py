@@ -13,9 +13,7 @@ logger = logging.getLogger(__name__)
 CRTSH_URL = "https://crt.sh/"
 
 # DNS hostname validation: labels are 1–63 characters.
-_LABEL_PATTERN = re.compile(
-    r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$"
-)
+_LABEL_PATTERN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$")
 
 
 class CRTShError(Exception):
@@ -134,13 +132,9 @@ async def fetch_subdomains(
         records = response.json()
 
     except ValueError as exc:
-        raise CRTShError(
-            "Certificate Transparency service returned invalid JSON."
-        ) from exc
+        raise CRTShError("Certificate Transparency service returned invalid JSON.") from exc
 
     if not isinstance(records, list):
-        raise CRTShError(
-            "Certificate Transparency service returned an unexpected response."
-        )
+        raise CRTShError("Certificate Transparency service returned an unexpected response.")
 
     return _extract_hostnames(records, normalized_domain)
