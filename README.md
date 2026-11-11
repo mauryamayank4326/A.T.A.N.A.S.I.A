@@ -20,9 +20,9 @@ Longer-term goals include:
 
 ## Current Status
 
-Development milestone: 0.16.0
+Development milestone: 0.17.0
 
-Lifecycle: Day 16 / 50
+Lifecycle: Day 17 / 50
 
 Objective: Build an asynchronous WHOIS intelligence service that retrieves and normalizes publicly available domain registration metadata.
 
