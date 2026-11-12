@@ -9,9 +9,13 @@ from app.services.recon import passive_recon
 from app.services.recon.passive_recon import (
     PassiveReconError,
     PassiveReconResult,
+    normalize_subdomains,
     run_passive_recon,
 )
 from app.services.recon.whois_lookup import WhoisRecord
+from app.services.recon.passive_recon import (
+    sanitize_source_error,
+)
 
 
 def build_whois_record() -> WhoisRecord:
@@ -177,3 +181,28 @@ async def test_passive_recon_rejects_invalid_timeout() -> None:
                 client,
                 whois_timeout_seconds=0,
             )
+def test_sanitize_source_error():
+    assert sanitize_source_error("crt.sh") == (
+        "crt.sh collection failed."
+    )
+
+    assert sanitize_source_error("WHOIS") == (
+        "WHOIS collection failed."
+    )
+
+def test_normalize_subdomains():
+    result = normalize_subdomains(
+        [
+            "WWW.Example.com",
+            "api.example.com.",
+            "www.example.com",
+            "example.com",
+            "example.com.attacker.net",
+        ],
+        "example.com",
+    )
+
+    assert result == (
+        "api.example.com",
+        "www.example.com",
+    )

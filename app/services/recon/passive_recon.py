@@ -22,6 +22,10 @@ from app.services.recon.whois_lookup import (
 class PassiveReconError(Exception):
     """Raised when every passive reconnaissance source fails."""
 
+def sanitize_source_error(source: str) -> str:
+    """Return a safe, stable error message for a failed source."""
+    return f"{source} collection failed."
+
 
 @dataclass(frozen=True, slots=True)
 class PassiveReconResult:
@@ -93,10 +97,13 @@ async def run_passive_recon(
         if not isinstance(crtsh_result, (CRTShError, ValueError)):
             crtsh_error = "Unexpected source failure"
         else:
-            crtsh_error = str(crtsh_result)
+            crtsh_error = sanitize_source_error("crt.sh")
 
     else:
-        subdomains = tuple(crtsh_result)
+        subdomains = normalize_subdomains(
+            crtsh_result,
+            normalized_domain,
+        )
 
     if isinstance(whois_result, BaseException):
         if not isinstance(whois_result, Exception):
@@ -105,7 +112,7 @@ async def run_passive_recon(
         if not isinstance(whois_result, (WhoisLookupError, ValueError)):
             whois_error = "Unexpected source failure"
         else:
-            whois_error = str(whois_result)
+            whois_error = sanitize_source_error("WHOIS")
 
     else:
         whois_record = whois_result
@@ -122,3 +129,27 @@ async def run_passive_recon(
         crtsh_error=crtsh_error,
         whois_error=whois_error,
     )
+def normalize_subdomains(
+    subdomains: tuple[str, ...] | list[str],
+    domain: str,
+) -> tuple[str, ...]:
+    """Return unique, normalized, in-scope subdomains."""
+    normalized_domain = normalize_domain(domain)
+    results: set[str] = set()
+
+    for item in subdomains:
+        if not isinstance(item, str):
+            continue
+
+        hostname = item.strip().lower().rstrip(".")
+
+        if hostname.startswith("*."):
+            hostname = hostname[2:]
+
+        if not hostname or hostname == normalized_domain:
+            continue
+
+        if hostname.endswith(f".{normalized_domain}"):
+            results.add(hostname)
+
+    return tuple(sorted(results))

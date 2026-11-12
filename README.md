@@ -20,43 +20,25 @@ Longer-term goals include:
 
 ## Current Status
 
-Development milestone: 0.18.0
+Development milestone: 0.19.0
 
-Lifecycle: Day 18 / 50
+Lifecycle: Day 19 / 50
 
-Objective
-Create a unified passive reconnaissance service that combines crt.sh and WHOIS intelligence for a single target domain.
+Objective:
+Day 18 established concurrent collection and partial-result preservation. Day 19 hardens that integration so the passive reconnaissance layer is safer, more predictable, and ready for API and persistence wiring.
 
-The service will:
-1. Validate and normalize the target domain.
-2. Execute crt.sh and WHOIS lookups concurrently.
-3. Collect discovered subdomains.
-4. Collect registration metadata.
-5. Handle partial source failures.
-6. Return a predictable result structure.
-7. Remain independent of FastAPI routes and database persistence.
-Expected output
-For a target such as example.com, the service should produce a result conceptually like:
-Target: example.com
+Completed updates:
+- Normalized and validated domain handling for both reconnaissance sources.
+- Consolidated crt.sh and WHOIS results into a single, serializable `PassiveReconResult`.
+- Preserved partial success by recording source failures without dropping successful data.
+- Filtered subdomains to unique, sorted, in-scope hostnames only.
+- Sanitized source error messages for stable downstream reporting.
+- Distinguished empty successful results from failed lookups.
+- Expanded the test suite to cover malformed input, source failures, and unexpected exceptions.
 
-Certificate Transparency:
-    api.example.com
-    www.example.com
-
-WHOIS:
-    Registrar: Example Registrar
-    Created: 2020-01-01
-    Expires: 2030-01-01
-
-Source Status:
-    crt.sh: successful
-    WHOIS: successful
-
-
-This is an illustrative output, not a claim about live lookup results.
-
-The project requires Python 3.10 or later. From the project root, create and
-activate a virtual environment, then install the development dependencies:
+Current validation status:
+- Passive reconnaissance tests are passing in the project virtual environment.
+- The project is ready to move into the next integration phase for API exposure and persistence.
 
 ```bash
 python3 -m venv .venv
