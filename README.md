@@ -20,25 +20,18 @@ Longer-term goals include:
 
 ## Current Status
 
-Development milestone: 0.19.0
+Development milestone: 0.20.0
 
-Lifecycle: Day 19 / 50
+Lifecycle: Day 20 / 50
 
-Objective:
-Day 18 established concurrent collection and partial-result preservation. Day 19 hardens that integration so the passive reconnaissance layer is safer, more predictable, and ready for API and persistence wiring.
-
-Completed updates:
-- Normalized and validated domain handling for both reconnaissance sources.
-- Consolidated crt.sh and WHOIS results into a single, serializable `PassiveReconResult`.
-- Preserved partial success by recording source failures without dropping successful data.
-- Filtered subdomains to unique, sorted, in-scope hostnames only.
-- Sanitized source error messages for stable downstream reporting.
-- Distinguished empty successful results from failed lookups.
-- Expanded the test suite to cover malformed input, source failures, and unexpected exceptions.
-
-Current validation status:
-- Passive reconnaissance tests are passing in the project virtual environment.
-- The project is ready to move into the next integration phase for API exposure and persistence.
+The passive reconnaissance pipeline now includes:
+- crt.sh subdomain collection and WHOIS registration data collection.
+- Concurrent source execution with partial-result preservation.
+- Subdomain normalization, in-scope filtering, and deduplication.
+- Source-specific sanitized error messages and explicit per-source status.
+- A serialization-friendly summary of combined results.
+- Tests covering successful collection, partial and total source failures,
+  invalid inputs, normalization, source status, and result summaries.
 
 ```bash
 python3 -m venv .venv

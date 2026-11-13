@@ -9,13 +9,12 @@ from app.services.recon import passive_recon
 from app.services.recon.passive_recon import (
     PassiveReconError,
     PassiveReconResult,
+    SourceStatus,
     normalize_subdomains,
     run_passive_recon,
-)
-from app.services.recon.whois_lookup import WhoisRecord
-from app.services.recon.passive_recon import (
     sanitize_source_error,
 )
+from app.services.recon.whois_lookup import WhoisRecord
 
 
 def build_whois_record() -> WhoisRecord:
@@ -206,3 +205,45 @@ def test_normalize_subdomains():
         "api.example.com",
         "www.example.com",
     )
+
+def test_source_status_for_successful_result():
+    result = PassiveReconResult(
+        domain="example.com",
+        subdomains=("www.example.com",),
+        whois_record=None,
+        crtsh_error=None,
+        whois_error=None,
+    )
+
+    assert result.crtsh_status is SourceStatus.SUCCESS
+    assert result.whois_status is SourceStatus.SUCCESS
+
+
+def test_source_status_for_partial_failure():
+    result = PassiveReconResult(
+        domain="example.com",
+        subdomains=("www.example.com",),
+        whois_record=None,
+        crtsh_error=None,
+        whois_error="WHOIS collection failed.",
+    )
+
+    assert result.crtsh_status is SourceStatus.SUCCESS
+    assert result.whois_status is SourceStatus.FAILED
+
+
+def test_passive_recon_summary():
+    result = PassiveReconResult(
+        domain="example.com",
+        subdomains=("www.example.com",),
+        whois_record=None,
+        crtsh_error=None,
+        whois_error="WHOIS collection failed.",
+    )
+
+    summary = result.to_summary()
+
+    assert summary["domain"] == "example.com"
+    assert summary["subdomains"] == ["www.example.com"]
+    assert summary["sources"]["crt.sh"]["status"] == "success"
+    assert summary["sources"]["whois"]["status"] == "failed"
