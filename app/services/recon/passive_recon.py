@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
+from enum import Enum
 
 import httpx
 
@@ -18,6 +19,10 @@ from app.services.recon.whois_lookup import (
     normalize_domain,
 )
 
+
+class SourceStatus(str, Enum):
+    SUCCESS = "success"
+    FAILED = "failed"
 
 class PassiveReconError(Exception):
     """Raised when every passive reconnaissance source fails."""
@@ -62,6 +67,42 @@ class PassiveReconResult:
             failed.append("whois")
 
         return tuple(failed)
+
+    @property
+    def crtsh_status(self) -> SourceStatus:
+        """Return the crt.sh collection status."""
+        return (
+            SourceStatus.FAILED
+            if self.crtsh_error is not None
+            else SourceStatus.SUCCESS
+        )
+
+    @property
+    def whois_status(self) -> SourceStatus:
+        """Return the WHOIS collection status."""
+        return (
+            SourceStatus.FAILED
+            if self.whois_error is not None
+            else SourceStatus.SUCCESS
+        )
+    def to_summary(self) -> dict[str, object]:
+        """Return a serialization-friendly reconnaissance summary."""
+        return {
+            "domain": self.domain,
+            "subdomains": list(self.subdomains),
+            "sources": {
+                "crt.sh": {
+                    "status": self.crtsh_status.value,
+                    "error": self.crtsh_error,
+                },
+                "whois": {
+                    "status": self.whois_status.value,
+                    "error": self.whois_error,
+                },
+            },
+            "successful_sources": list(self.successful_sources),
+            "failed_sources": list(self.failed_sources),
+    }
 
 
 async def run_passive_recon(
