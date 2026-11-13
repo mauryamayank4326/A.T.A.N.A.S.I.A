@@ -20,18 +20,21 @@ Longer-term goals include:
 
 ## Current Status
 
-Development milestone: 0.20.0
+Development milestone: 0.21.0
 
-Lifecycle: Day 20 / 50
+Lifecycle: Day 21 / 50
 
-The passive reconnaissance pipeline now includes:
-- crt.sh subdomain collection and WHOIS registration data collection.
-- Concurrent source execution with partial-result preservation.
-- Subdomain normalization, in-scope filtering, and deduplication.
-- Source-specific sanitized error messages and explicit per-source status.
-- A serialization-friendly summary of combined results.
-- Tests covering successful collection, partial and total source failures,
-  invalid inputs, normalization, source status, and result summaries.
+Shodan provides indexed information about internet-connected devices and services. It can enrich domain reconnaissance with externally observed host and service information.
+
+Today's objectives:
+1. Build an asynchronous Shodan API client using httpx.
+2. Read the API key securely from the existing application settings.
+3. Validate input before sending requests.
+4. Handle authentication failures, rate limits, timeouts, and upstream errors.
+5. Normalize returned host information into a predictable structure.
+6. Test the client without making live Shodan requests.
+7. Keep the service separate from the existing passive collectors.
+Scope boundary: Day 21 is API integration and response normalization. Active TCP port probing remains a separate later task. Shodan results are observations from its indexed dataset, not proof of current reachability.
 
 ```bash
 python3 -m venv .venv
