@@ -7,10 +7,30 @@ import pytest
 from app.services.recon.tcp_probe import (
     TCPPortStatus,
     TCPProbeError,
+    grab_tcp_banner,
+    identify_tcp_service,
     probe_tcp_port,
     scan_tcp_ports,
 )
 
+
+@pytest.mark.asyncio
+async def test_grab_tcp_banner():
+    reader = asyncio.StreamReader()
+    reader.feed_data(b"SSH-2.0-OpenSSH_9.6\r\n")
+    reader.feed_eof()
+
+    writer = AsyncMock()
+    writer.wait_closed = AsyncMock()
+
+    with patch(
+        "app.services.recon.tcp_probe.asyncio.open_connection",
+        new=AsyncMock(return_value=(reader, writer)),
+    ):
+        banner = await grab_tcp_banner("127.0.0.1", 2222)
+
+    assert banner == "SSH-2.0-OpenSSH_9.6"
+    writer.close.assert_called_once()
 
 @pytest.mark.asyncio
 async def test_probe_tcp_port_open():
@@ -94,3 +114,26 @@ async def test_scan_tcp_ports_rejects_invalid_concurrency():
 def test_probe_rejects_empty_host():
     with pytest.raises(TCPProbeError):
         asyncio.run(probe_tcp_port("", 80))
+
+def test_identify_ssh_from_banner():
+    result = identify_tcp_service(
+        2222,
+        "SSH-2.0-OpenSSH_9.6",
+    )
+
+    assert result.service_name == "ssh"
+    assert result.confidence == "high"
+
+
+def test_identify_service_from_port_hint():
+    result = identify_tcp_service(443, None)
+
+    assert result.service_name == "https"
+    assert result.confidence == "low"
+
+
+def test_unknown_port_without_banner():
+    result = identify_tcp_service(49152, None)
+
+    assert result.service_name is None
+    assert result.confidence == "unknown"
