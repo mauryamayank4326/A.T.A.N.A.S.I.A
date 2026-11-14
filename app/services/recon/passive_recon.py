@@ -135,7 +135,7 @@ async def run_passive_recon(
         if not isinstance(crtsh_result, Exception):
             raise crtsh_result
 
-        if not isinstance(crtsh_result, (CRTShError, ValueError)):
+        if not isinstance(crtsh_result, CRTShError | ValueError):
             crtsh_error = "Unexpected source failure"
         else:
             crtsh_error = sanitize_source_error("crt.sh")
@@ -150,7 +150,7 @@ async def run_passive_recon(
         if not isinstance(whois_result, Exception):
             raise whois_result
 
-        if not isinstance(whois_result, (WhoisLookupError, ValueError)):
+        if not isinstance(whois_result, WhoisLookupError | ValueError):
             whois_error = "Unexpected source failure"
         else:
             whois_error = sanitize_source_error("WHOIS")

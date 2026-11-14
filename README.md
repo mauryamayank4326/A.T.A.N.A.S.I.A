@@ -20,21 +20,18 @@ Longer-term goals include:
 
 ## Current Status
 
-Development milestone: 0.21.0
+Development milestone: 0.22.0
 
-Lifecycle: Day 21 / 50
+Lifecycle: Day 22 / 50
 
-Shodan provides indexed information about internet-connected devices and services. It can enrich domain reconnaissance with externally observed host and service information.
-
-Today's objectives:
-1. Build an asynchronous Shodan API client using httpx.
-2. Read the API key securely from the existing application settings.
-3. Validate input before sending requests.
-4. Handle authentication failures, rate limits, timeouts, and upstream errors.
-5. Normalize returned host information into a predictable structure.
-6. Test the client without making live Shodan requests.
-7. Keep the service separate from the existing passive collectors.
-Scope boundary: Day 21 is API integration and response normalization. Active TCP port probing remains a separate later task. Shodan results are observations from its indexed dataset, not proof of current reachability.
+Build a reusable asynchronous TCP connect scanner that:
+- Accepts a hostname or IP address and a list of ports.
+- Attempts TCP connections without raw sockets or packet crafting.
+- Limits concurrent connections with asyncio.Semaphore.
+- Applies a configurable connection timeout.
+- Records open, closed, filtered/timed-out, and error outcomes.
+- Returns structured results for later persistence and orchestration.
+Not included today: service fingerprinting, banner grabbing, UDP scanning, database persistence, or API integration.
 
 ```bash
 python3 -m venv .venv
